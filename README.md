@@ -1,59 +1,93 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# User Management System
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+A Laravel-based user management API.
 
-## About Laravel
+## Project Setup
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+1. **Clone the repository**
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+git clone https://github.com/Sancheet-Walekar/interview-assignment.git
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+2. **Install dependencies**
 
-## Learning Laravel
+   composer install
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework. You can also check out [Laravel Learn](https://laravel.com/learn), where you will be guided through building a modern Laravel application.
+3. **Environment Setup**
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+   cp .env.example .env
+   php artisan key:generate
+   Configure your database details in .env
 
-## Laravel Sponsors
+4. **Run Migrations**
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+   php artisan migrate
 
-### Premium Partners
+5. **Serve**
 
-- **[Vehikl](https://vehikl.com)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Redberry](https://redberry.international/laravel-development)**
-- **[Active Logic](https://activelogic.com)**
+   php artisan serve
 
-## Contributing
+## Architecture Overview
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+*   **Controller**: Handles HTTP requests and response formatting.
+*   **Service Layer**: Orchestrates logic, handles caching, and communicates with BO and DAO.
+*   **Business Object (BO)**: Encapsulates business rules like data preparation and password hashing.
+*   **Data Access Object (DAO)**: Manages direct database interactions using Eloquent.
 
-## Code of Conduct
+## API Endpoints
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+*   `POST /api/users` - Create a new user.
+*   `PUT /api/users/{id}` - Update an existing user.
+*   `GET /api/users` - List all users.
+*   `GET /api/users/{id}` - Show a specific user.
 
-## Security Vulnerabilities
+## How Caching Works
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+*   **Read**: User data is retrieved from `users.{id}` cache key if available. Full user list is cached at `users.all`.
+*   **Write**:
+    *   Creating a user invalidates the `users.all` list cache.
+    *   Updating a user invalidates both the specific `users.{id}` cache and the `users.all` list cache.
 
-## License
+## API Testing
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+The User Management APIs were tested locally using Postman.
+
+### Base URL
+http://127.0.0.1:8000
+
+### Create User
+POST /api/users
+
+Request Body:
+json
+{
+  "name": "Sancheet Walekar",
+  "email": "sa@gmail.com",
+  "password": "password123"
+}
+
+Expected Result:
+
+Returns HTTP 201
+User is created with encrypted password
+
+Update User
+PUT /api/users/{id}
+
+Request Body:
+json
+
+{
+  "name": "Sancheet Updated",
+  "email": "sa.updated@gmail.com",
+  "password": "newpassword123"
+}
+
+Expected Result:
+
+Returns HTTP 200
+User details are updated
+Cache is invalidated
+
+Returns HTTP 200
+Returns list of users
+Response is served from cache on su
