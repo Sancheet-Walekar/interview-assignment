@@ -1,3 +1,5 @@
+
+
 # User Management System
 
 A Laravel-based user management API.
@@ -90,4 +92,3 @@ Cache is invalidated
 
 Returns HTTP 200
 Returns list of users
-Response is served from cache on su
